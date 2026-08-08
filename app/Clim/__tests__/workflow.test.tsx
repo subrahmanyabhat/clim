@@ -554,7 +554,7 @@ describe('design and flow', () => {
     expect(opened).toEqual([
       'https://clim.dev/privacy.html',
       'https://clim.dev/terms.html',
-      'https://github.com/dingalabs/clim/issues',
+      'https://github.com/subrahmanyabhat/clim/issues',
       'https://buymeacoffee.com/subrahmanya',
     ]);
 

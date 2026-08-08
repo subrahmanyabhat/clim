@@ -1131,6 +1131,14 @@ function SessionCard({ session, onPress, muted, onToggleMute }: { session: Sessi
   const thinking = bucket !== 'closed' && !!(session.running || session.thinking);
   const imgs = imageCount(session.title);
   const starting = isStarting(session);
+  // The card's two preview lines. For codex and hermes the raw tail is the
+  // status bar and the composer — a card that said "[░░░░] -- │ 3s" told you
+  // nothing. Their parsed turns are the actual last thing said.
+  const preview = useMemo(() => {
+    const turns = parseAgentTurns(stripAnsi(session.screen || ''), session.tool);
+    if (turns) return turns.slice(-2).map((t) => t.text.split('\n').filter(Boolean).slice(-1)[0] || '');
+    return (session.lines || []).map((l) => cleanTerminal(l)).filter(Boolean).slice(-2);
+  }, [session.screen, session.tool, session.lines]);
   return (
     <TouchableOpacity testID={'card-' + session.sessionId} activeOpacity={0.7} onPress={onPress}
       style={[s.sCard, needsInput && { borderColor: C.brand }, bucket === 'closed' && s.cardClosed]}>
@@ -1166,7 +1174,7 @@ function SessionCard({ session, onPress, muted, onToggleMute }: { session: Sessi
           {thinking && <Pill text={(session.status || 'thinking').split(/\s*\(/)[0].slice(0, 16)} tone="warn" />}
           {needsInput && !thinking && <Pill text="needs input" tone="claude" />}
         </View>
-        {(session.lines || []).map((l) => cleanTerminal(l)).filter(Boolean).slice(-2).map((l, i) => (
+        {preview.map((l, i) => (
           <Text key={i} style={[s.line, bucket === 'closed' && s.dimText]} numberOfLines={1}>
             <Text style={s.marker}>› </Text>{l}
           </Text>
@@ -1383,7 +1391,12 @@ function Detail({ session, host, secret, onSend, onBack, word, muted, onToggleMu
       // The Mac's screen buffer when it sends one — that is what the terminal
       // actually shows. Accumulated frames are the fallback for an older
       // wrapper, and are a wall of repaints by comparison.
-      const text = cleanTerminal(stripAnsi(session.screen || session.raw || ''));
+      const src = stripAnsi(session.screen || session.raw || '');
+      // Codex and Hermes mark their turns, so they get the same conversation
+      // the transcript gives Claude. Anything else stays a terminal block.
+      const turns = parseAgentTurns(src, session.tool);
+      if (turns) return turns;
+      const text = cleanTerminal(src);
       if (text) return [{ role: 'terminal', text }];
       return (transcript?.entries || []) as Msg[];
     }
@@ -1812,6 +1825,76 @@ function cleanTerminal(text: string): string {
   while (out.length && out[0] === '') out.shift();
   while (out.length && out[out.length - 1] === '') out.pop();
   return out.join('\n');
+}
+
+// Codex and Hermes have no transcript, so the screen is all there is — but a
+// screen is not a wall of text, it has turns in it. Both mark them:
+//
+//   codex     "› what the user asked"      "• what the agent answered"
+//   hermes    "● what the user asked"      the reply inside a "╭─ ⚕ Hermes ─╮" box
+//
+// Everything else on those screens is furniture — the startup banner, the tool
+// and skill listing, the model/context status bar, the composer at the bottom
+// with its placeholder. Rendering the lot as one black block is what made these
+// two look unfinished next to Claude.
+//
+// Returns null when it recognises nothing, and the caller falls back to the
+// plain terminal block — a tool we have never seen is better shown raw than
+// shown wrong.
+const CHROME = [
+  /^\s*Welcome to /,                    // hermes greeting
+  /^\s*✦ Tip:/,                         // hermes tip line
+  /^\s*Initializing agent/,
+  /\/help for commands/,
+  /^\s*⚠/,                              // update nag
+  /^\s*❯/,                              // hermes composer
+  /\[[█░]+\]/,                          // hermes context meter
+  /·\s+\/\S*$/,                         // codex status: "model default · /path"
+];
+const BOX_TOP = /^\s*[╭┌]/;
+const BOX_BOTTOM = /^\s*[╰└]/;
+const HERMES_REPLY = /[╭┌].*⚕\s*Hermes/;   // the reply box, not the "Hermes Agent" banner
+
+export function parseAgentTurns(text: string, tool?: string): Msg[] | null {
+  const t = String(tool || '').toLowerCase();
+  if (t !== 'codex' && t !== 'hermes') return null;
+  const lines = String(text || '').split('\n');
+  const out: Msg[] = [];
+  let inBox = false, inReply = false;
+  const push = (role: string, s: string) => {
+    const line = s.replace(/\s+$/, '');
+    if (!line.trim()) return;
+    const last = out[out.length - 1];
+    if (last && last.role === role) last.text += '\n' + line;
+    else out.push({ role, text: line });
+  };
+
+  for (const raw of lines) {
+    if (BOX_TOP.test(raw)) { inBox = true; inReply = HERMES_REPLY.test(raw); continue; }
+    if (BOX_BOTTOM.test(raw)) { inBox = false; inReply = false; continue; }
+    // Inside the banner or any other box: skip. Inside the reply box: keep,
+    // stripping the side frames the way cleanTerminal does.
+    if (inBox) {
+      if (inReply) push('assistant', raw.replace(/^\s*[│┃|║]\s?/, '').replace(/\s*[│┃|║]\s*$/, ''));
+      continue;
+    }
+    if (BOX_ONLY.test(raw)) continue;                 // rules and separators
+    if (CHROME.some((re) => re.test(raw))) continue;
+
+    const user = raw.match(/^\s*[›●]\s+(.*)$/);
+    if (user) { push('user', user[1]); continue; }
+    const asst = raw.match(/^\s*[•✱]\s+(.*)$/);
+    if (asst) { push('assistant', asst[1]); continue; }
+    // An unmarked line continues whichever turn is open; before any turn has
+    // started it is still banner, so it is dropped.
+    if (out.length) push(out[out.length - 1].role, raw);
+  }
+
+  // The composer sits at the bottom and looks exactly like a user turn — codex
+  // even pre-fills it with "Implement {feature}". If the last thing on screen is
+  // a user turn with no reply under it, that is the input box, not a turn.
+  if (out.length && out[out.length - 1].role === 'user') out.pop();
+  return out.length ? out : null;
 }
 
 /** CLAUDE, CODEX, or whatever was wrapped. Scan-found sessions are Claude. */
