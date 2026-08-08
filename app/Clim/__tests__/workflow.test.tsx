@@ -529,7 +529,7 @@ describe('design and flow', () => {
     expect(has(tree, 'devices-help')).toBe(true);
     await tap(tree, 'devices-help');
     expect(hasText(tree, 'What is Clim?')).toBe(true);
-    expect(hasText(tree, 'Control Claude Code and Codex from your phone')).toBe(true);
+    expect(hasText(tree, 'Control Claude Code, Codex and Hermes from your phone')).toBe(true);
   });
 
   it('has a settings screen with everything Apple requires reachable in-app', async () => {

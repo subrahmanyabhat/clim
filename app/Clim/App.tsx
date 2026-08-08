@@ -1752,7 +1752,7 @@ function Setup({ host, secret, discovered, cloudUrl, cloudKey, cloudSid, activeM
 function Tutorial({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [idx, setIdx] = useState(0);
   const slides = [
-    { icon: 'terminal', title: 'What is Clim?', body: 'Control Claude Code and Codex from your phone. See sessions live, tap Yes/No, send messages — from anywhere.' },
+    { icon: 'terminal', title: 'What is Clim?', body: 'Control Claude Code, Codex and Hermes from your phone — any agent you can run in a terminal. See sessions live, tap Yes/No, send messages, from anywhere.' },
     { icon: 'wifi', title: 'LAN mode', body: 'On the same WiFi as your Mac, phone talks to it directly. Fast, private, no internet needed. Zero packets leave your router.' },
     { icon: 'cloud', title: 'Cloud mode', body: 'When you are elsewhere, packets go through a zero-knowledge relay. End-to-end encrypted with a key only your phone and Mac share.' },
     { icon: 'zap', title: 'Setup on Mac', body: 'Install once:\nnpm install -g clim\n\nThen run:\nclim claude\n\nA QR pops up. Scan it with Clim. Done. LAN or Cloud is auto-detected.' },

@@ -1,6 +1,6 @@
 # clim
 
-**Control Claude Code and Codex from your phone.**
+**Control Claude Code, Codex and Hermes from your phone — any agent you can run in a terminal.**
 LAN offline or E2E-encrypted cloud. One command.
 
 ```bash
@@ -112,6 +112,45 @@ Set your own cloud relay:
 
 ```bash
 export CLIM_CLOUD=wss://relay.example.com
+```
+
+## Build the app
+
+The phone app is not on the App Store or Google Play yet. Until it is, build it
+yourself — you need Xcode (iOS) or Android Studio, and a free Apple developer
+account is enough for your own device.
+
+```bash
+git clone https://github.com/subrahmanyabhat/clim.git
+cd clim/app/Clim
+npm install
+```
+
+**iOS**
+
+```bash
+cd ios && pod install && cd ..
+open ios/Clim.xcworkspace          # set your team under Signing & Capabilities, then Run
+```
+
+Or from the command line, straight onto a connected iPhone:
+
+```bash
+cd ios
+xcodebuild -workspace Clim.xcworkspace -scheme Clim -configuration Release \
+  -destination generic/platform=iOS archive -archivePath build/Clim.xcarchive \
+  CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<YOUR_TEAM_ID> -allowProvisioningUpdates
+xcodebuild -exportArchive -archivePath build/Clim.xcarchive \
+  -exportOptionsPlist ExportOptions.plist -exportPath build/IPA
+xcrun devicectl device install app --device <UDID> build/IPA/Clim.ipa
+```
+
+`xcrun devicectl list devices` prints the UDID.
+
+**Android**
+
+```bash
+npx react-native run-android
 ```
 
 ## Self-hosting the cloud relay
