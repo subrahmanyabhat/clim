@@ -116,7 +116,7 @@ export CLIM_CLOUD=wss://relay.example.com
 
 ## Self-hosting the cloud relay
 
-The relay is a Cloudflare Worker + Durable Object (`worker/` in the repo); a single-file Deno equivalent lives in `relay/main.ts`. Deploy to Cloudflare, Deno Deploy, Fly.io, or any host that terminates WebSockets. Source: [github.com/dingalabs/clim](https://github.com/dingalabs/clim).
+The relay is a Cloudflare Worker + Durable Object (`worker/` in the repo); a single-file Deno equivalent lives in `relay/main.ts`. Deploy to Cloudflare, Deno Deploy, Fly.io, or any host that terminates WebSockets. Source: [github.com/subrahmanyabhat/clim](https://github.com/subrahmanyabhat/clim).
 
 ## Security notes
 

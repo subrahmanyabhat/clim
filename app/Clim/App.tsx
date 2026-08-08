@@ -867,8 +867,8 @@ function TransportCard({ mode, testID, label, endpoint, active, connected, sessi
 const LINKS = {
   privacy: 'https://clim.dev/privacy.html',
   terms: 'https://clim.dev/terms.html',
-  support: 'https://github.com/dingalabs/clim/issues',
-  source: 'https://github.com/dingalabs/clim',
+  support: 'https://github.com/subrahmanyabhat/clim/issues',
+  source: 'https://github.com/subrahmanyabhat/clim',
   coffee: 'https://buymeacoffee.com/subrahmanya',
 };
 
@@ -941,7 +941,7 @@ function Settings({ onBack, onHelp, host, cloudSid, activeMode }: any) {
           <SettingsRow testID="settings-help" icon="help" label="How Clim works"
             hint="the quick tour" onPress={onHelp} />
           <SettingsRow testID="settings-source" icon="terminal" label="Source code"
-            hint="github.com/dingalabs/clim" onPress={() => open(LINKS.source)} />
+            hint="github.com/subrahmanyabhat/clim" onPress={() => open(LINKS.source)} />
           <SettingsRow testID="settings-support" icon="help" label="Support"
             hint="report a bug or ask a question" onPress={() => open(LINKS.support)} />
         </View>

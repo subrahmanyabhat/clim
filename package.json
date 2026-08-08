@@ -18,10 +18,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dingalabs/clim.git"
+    "url": "https://github.com/subrahmanyabhat/clim.git"
   },
   "homepage": "https://clim.dev",
-  "bugs": "https://github.com/dingalabs/clim/issues",
+  "bugs": "https://github.com/subrahmanyabhat/clim/issues",
   "bin": {
     "clim": "bin/clim.js"
   },
