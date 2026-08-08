@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LAN mode talks to the Mac over plain http:// and ws:// at whatever private
+  address the QR hands over — 192.168.x.x, 10.x.x.x, a .local name. Android 9
+  blocks cleartext by default, and this permission lived only in the debug
+  manifest, so LAN worked all through development and would have failed in
+  every release build. That is the bug this file fixes.
+
+  It is deliberately blanket. Network security config matches domains, and a
+  domain list cannot express "any private address", so scoping it to the LAN is
+  not something this file can do. The scoping that matters is in the app: cloud
+  mode is wss:// and its payloads are sealed with NaCl before they reach the
+  relay, so nothing sensitive rides on cleartext either way.
+-->
+<network-security-config>
+  <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
