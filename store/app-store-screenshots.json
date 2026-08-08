@@ -67,6 +67,17 @@
           "en": "Codex and Hermes,\nsame app."
         },
         "screenshot": "/screenshots/apple/iphone/{locale}/05.png"
+      },
+      {
+        "id": "clim_iphone_6",
+        "layout": "no-device",
+        "label": {
+          "en": "EVERYTHING ELSE"
+        },
+        "headline": {
+          "en": "LAN direct\nE2E cloud\nNo account\nOpen source"
+        },
+        "screenshot": ""
       }
     ],
     "android": [
@@ -125,6 +136,17 @@
           "en": "No accounts.\nNothing collected."
         },
         "screenshot": "/screenshots/android/phone/{locale}/05.png"
+      },
+      {
+        "id": "clim_android_6",
+        "layout": "no-device",
+        "label": {
+          "en": "EVERYTHING ELSE"
+        },
+        "headline": {
+          "en": "LAN direct\nE2E cloud\nNo account\nOpen source"
+        },
+        "screenshot": ""
       }
     ],
     "ipad": [],
