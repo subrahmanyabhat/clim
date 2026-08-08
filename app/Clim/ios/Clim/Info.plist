@@ -32,12 +32,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSCameraUsageDescription</key>
-	<string>Clim uses camera to scan the cloud pairing QR shown by the Mac.</string>
+	<string>clim scans the pairing QR code your Mac prints, so the phone can connect to that session.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Clim needs local network access to discover your Mac and stream Claude Code sessions over WiFi.</string>
+	<string>clim finds your Mac on this WiFi network and streams the session directly to your phone, without going through the internet.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_clim._tcp</string>
