@@ -37,8 +37,13 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1800, height: 1200 } });
 page.on("pageerror", (e) => console.error("  page error:", e.message));
 
-fs.rmSync(OUT, { recursive: true, force: true });
+// Clear only what this run rebuilds. Wiping OUT wholesale meant a partial run
+// ("export.mjs feature-graphic") silently deleted the decks it was not asked
+// to touch.
 fs.mkdirSync(OUT, { recursive: true });
+for (const device of devices) {
+  fs.rmSync(path.join(OUT, device), { recursive: true, force: true });
+}
 
 for (const device of devices) {
   process.stdout.write(`${device}: `);
