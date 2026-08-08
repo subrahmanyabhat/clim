@@ -1,0 +1,14 @@
+{
+  "name": "clim — terminal in your pocket",
+  "short_name": "clim",
+  "description": "Control Claude Code, Codex and Hermes from your phone — any agent you can run in a terminal.",
+  "icons": [
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" }
+  ],
+  "theme_color": "#0a0a0a",
+  "background_color": "#0a0a0a",
+  "display": "standalone",
+  "start_url": "/"
+}

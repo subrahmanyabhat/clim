@@ -19,9 +19,22 @@
 [[headers]]
   for = "/*.png"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=3600"
 
 [[headers]]
   for = "/index.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# The icons are versionless by design (favicon.ico, icon.svg, apple-touch-icon)
+# so they cannot be cached immutably the way /shots/* is — a logo change has to
+# be able to land. An hour is long enough to be cheap and short enough to fix.
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
