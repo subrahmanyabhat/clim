@@ -502,6 +502,62 @@ h1.headline .underlined::after {
 .shot .cap-body { color: var(--muted); font-size: 12px; line-height: 1.55; margin-top: 4px; }
 @media (max-width: 720px) { .shot { width: 210px; } }
 
+/* The phones sit at a slight angle and stand up when you point at one. The
+   glow behind them is the same orange as the mark, so the section reads as
+   part of the product rather than a generic screenshot strip. */
+.shot figure {
+  transform: perspective(1200px) rotateY(var(--tilt, 0deg)) translateZ(0);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+  will-change: transform;
+}
+.shots .shot:nth-child(1) figure { --tilt: 7deg; }
+.shots .shot:nth-child(3) figure { --tilt: -7deg; }
+.shot figure:hover {
+  --tilt: 0deg;
+  transform: perspective(1200px) rotateY(0) translateY(-6px);
+  box-shadow: 0 34px 70px -18px rgba(0, 0, 0, 0.95),
+              0 0 0 1px rgba(219, 127, 92, 0.35) inset,
+              0 0 46px -6px rgba(219, 127, 92, 0.28);
+}
+
+/* A cursor blinking under each caption — the same block the wordmark uses. */
+.shot .cap-title::after {
+  content: '▊'; color: var(--claude); font-size: 11px;
+  margin-left: 6px; animation: blink 1.1s steps(1, end) infinite;
+}
+
+/* Numbered like the section marks, so the strip reads as a sequence. */
+.shot .cap-step {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 6px;
+}
+.shot .cap-step b { color: var(--claude); font-weight: 700; }
+
+/* One slow pass of light down the screen, like a terminal repainting. */
+.shot .glass {
+  position: absolute; inset: 8px; border-radius: 20px;
+  overflow: hidden; pointer-events: none; z-index: 1;
+}
+.shot .glass::after {
+  content: ''; position: absolute; left: -30%; right: -30%; height: 38%;
+  top: -40%;
+  background: linear-gradient(180deg, transparent, rgba(219, 127, 92, 0.10), transparent);
+  animation: sweep 7s ease-in-out infinite;
+}
+.shots .shot:nth-child(2) .glass::after { animation-delay: 2.3s; }
+.shots .shot:nth-child(3) .glass::after { animation-delay: 4.6s; }
+@keyframes sweep {
+  0%, 70%, 100% { top: -40%; opacity: 0; }
+  8% { opacity: 1; }
+  60% { top: 105%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shot figure { transform: none; transition: none; }
+  .shot .glass::after, .shot .cap-title::after { animation: none; }
+  .shot .glass::after { opacity: 0; }
+}
+
 /* ---- FEATURES GRID ---- */
 .features {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
@@ -905,33 +961,39 @@ footer .wrap {
     </div>
 
     <div class="shots reveal">
-      <div class="shot">
+      <div class="shot reveal" style="transition-delay: 0s;">
         <figure>
-          <img src="./shots/pair.png" width="644" height="1400" loading="lazy" decoding="async"
+          <span class="glass"></span>
+          <img src="./shots/pair.png" width="1206" height="2622" loading="lazy" decoding="async"
                alt="clim pairing screen with a Scan QR button, a LAN/Cloud toggle, and a field to paste the invite line" />
           <figcaption>
+            <div class="cap-step"><b>01</b> / 03</div>
             <div class="cap-title">Pair once</div>
             <div class="cap-body">Scan the QR your Mac prints — or paste the invite line if the camera isn't an option.</div>
           </figcaption>
         </figure>
       </div>
 
-      <div class="shot">
+      <div class="shot reveal" style="transition-delay: 0.12s;">
         <figure>
-          <img src="./shots/sessions.png" width="644" height="1400" loading="lazy" decoding="async"
+          <span class="glass"></span>
+          <img src="./shots/sessions.png" width="1206" height="2622" loading="lazy" decoding="async"
                alt="clim session list showing one live Claude Code session marked needs input" />
           <figcaption>
+            <div class="cap-step"><b>02</b> / 03</div>
             <div class="cap-title">Every session, at a glance</div>
             <div class="cap-body">Live cards per session. The one waiting on you is outlined and marked <em>needs input</em>.</div>
           </figcaption>
         </figure>
       </div>
 
-      <div class="shot">
+      <div class="shot reveal" style="transition-delay: 0.24s;">
         <figure>
-          <img src="./shots/conversation.png" width="644" height="1400" loading="lazy" decoding="async"
+          <span class="glass"></span>
+          <img src="./shots/conversation.png" width="1206" height="2622" loading="lazy" decoding="async"
                alt="clim conversation view showing the real Claude Code exchange with three tappable numbered options" />
           <figcaption>
+            <div class="cap-step"><b>03</b> / 03</div>
             <div class="cap-title">Real replies, tappable answers</div>
             <div class="cap-body">The conversation as it was actually said — no tool calls, no terminal chrome. Numbered options become tap rows.</div>
           </figcaption>
@@ -1050,7 +1112,7 @@ footer .wrap {
         <h5>legal</h5>
         <a href="/privacy.html">privacy · zero data collected</a> · <a href="/terms.html">terms</a> · <a href="https://buymeacoffee.com/subrahmanya">buy me a coffee</a>
         <a href="https://github.com/subrahmanyabhat/clim/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a>
-        <a href="mailto:hi@clim.dev">contact</a>
+        <a href="mailto:subrahmanya126@gmail.com">contact</a>
       </div>
     </div>
   </div>

@@ -89,4 +89,4 @@ export class Room {
   }
 }
 
-const HTML = `<!doctype html><html><body style="background:#0a0a0a;color:#eee;font-family:monospace;padding:24px"><h2>clim cloud relay</h2><p>WS endpoint: <code>/relay?session=&lt;id&gt;&amp;role=mac|phone</code></p><p>Web UI: use native clim app — download from clim.dev</p></body></html>`;
+const HTML = `<!doctype html><html><body style="background:#0a0a0a;color:#eee;font-family:monospace;padding:24px"><h2>clim cloud relay</h2><p>WS endpoint: <code>/relay?session=&lt;id&gt;&amp;role=mac|phone</code></p><p>Web UI: use native clim app — download from getclim.netlify.app</p></body></html>`;

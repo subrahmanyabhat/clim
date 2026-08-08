@@ -865,8 +865,8 @@ function TransportCard({ mode, testID, label, endpoint, active, connected, sessi
 // Everything Apple wants reachable from inside the app — privacy policy, terms,
 // a way to contact support — plus the things a curious user looks for.
 const LINKS = {
-  privacy: 'https://clim.dev/privacy.html',
-  terms: 'https://clim.dev/terms.html',
+  privacy: 'https://getclim.netlify.app/privacy.html',
+  terms: 'https://getclim.netlify.app/terms.html',
   support: 'https://github.com/subrahmanyabhat/clim/issues',
   source: 'https://github.com/subrahmanyabhat/clim',
   coffee: 'https://buymeacoffee.com/subrahmanya',
@@ -1136,7 +1136,7 @@ function SessionCard({ session, onPress, muted, onToggleMute }: { session: Sessi
   // nothing. Their parsed turns are the actual last thing said.
   const preview = useMemo(() => {
     const turns = parseAgentTurns(stripAnsi(session.screen || ''), session.tool);
-    if (turns) return turns.slice(-2).map((t) => t.text.split('\n').filter(Boolean).slice(-1)[0] || '');
+    if (turns) return turns.slice(-2).map((t) => t.text.split('\n').map((l) => l.trim()).filter(Boolean)[0] || '');
     return (session.lines || []).map((l) => cleanTerminal(l)).filter(Boolean).slice(-2);
   }, [session.screen, session.tool, session.lines]);
   return (
@@ -1903,8 +1903,11 @@ function toolName(s: Session): string {
 }
 
 function isStarting(s: Session): boolean {
+  // A codex or hermes session has no transcript and no parsed messages, so it
+  // read as "still booting" for its whole life. Its screen is proof it is up.
   return !s.closed && !!(s.pty || s.tmuxTarget)
-    && !s.transcriptPath && !(s.messages || []).length && !(s.lines || []).length;
+    && !s.transcriptPath && !(s.messages || []).length && !(s.lines || []).length
+    && !(s.screen || '').trim();
 }
 
 type Bucket = 'live' | 'detached' | 'closed';

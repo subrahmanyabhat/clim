@@ -552,8 +552,8 @@ describe('design and flow', () => {
     await tap(tree, 'settings-support');
     await tap(tree, 'settings-coffee');
     expect(opened).toEqual([
-      'https://clim.dev/privacy.html',
-      'https://clim.dev/terms.html',
+      'https://getclim.netlify.app/privacy.html',
+      'https://getclim.netlify.app/terms.html',
       'https://github.com/subrahmanyabhat/clim/issues',
       'https://buymeacoffee.com/subrahmanya',
     ]);
