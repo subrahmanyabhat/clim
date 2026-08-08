@@ -1,0 +1,15 @@
+# Local Netlify folder
+.netlify
+
+# Dependencies
+node_modules/
+app/Clim/vendor/
+app/Clim/ios/Pods/
+
+# Build output
+app/Clim/ios/build/
+worker/.wrangler/
+*.log
+
+# macOS
+.DS_Store

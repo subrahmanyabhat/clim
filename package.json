@@ -1,0 +1,56 @@
+{
+  "name": "@dingalabs/clim",
+  "version": "1.1.0",
+  "description": "Control Claude Code + Codex from your phone. LAN offline or E2E-encrypted cloud. One command: clim claude.",
+  "author": "Dinga Labs",
+  "license": "MIT",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "codex",
+    "mobile",
+    "cli",
+    "remote",
+    "terminal",
+    "pty",
+    "wrapper",
+    "e2e"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dingalabs/clim.git"
+  },
+  "homepage": "https://clim.dev",
+  "bugs": "https://github.com/dingalabs/clim/issues",
+  "bin": {
+    "clim": "bin/clim.js"
+  },
+  "main": "lib/server.js",
+  "scripts": {
+    "start": "node bin/clim-server.js",
+    "postinstall": "node -e \"const fs=require('fs'),p=require('path'),d=p.join(__dirname,'node_modules/node-pty/prebuilds');fs.existsSync(d)&&fs.readdirSync(d).forEach(a=>{const h=p.join(d,a,'spawn-helper');fs.existsSync(h)&&fs.chmodSync(h,0o755)})\"",
+    "test": "node lib/ansi.test.js && node lib/transcript.test.js && node lib/options.test.js && node lib/screen.test.js && node lib/server.test.js && node lib/e2e.test.js && npm run test:app",
+    "test:app": "cd app/Clim && npx jest --ci"
+  },
+  "dependencies": {
+    "bonjour-service": "^1.4.3",
+    "node-pty": "^1.0.0",
+    "qrcode-terminal": "^0.12.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "!lib/*.test.js",
+    "README.md",
+    "LICENSE"
+  ]
+}

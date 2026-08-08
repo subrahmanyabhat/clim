@@ -1,0 +1,13 @@
+app/
+worker/
+deno-relay.ts
+Dockerfile
+fly.toml
+node_modules/
+*.log
+/tmp/
+.DS_Store
+public/manifest.webmanifest
+.git/
+
+lib/*.test.js

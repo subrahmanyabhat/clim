@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — clim</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0a0a0a; color:#c8c8c8; font:15px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;
+         margin:0; padding:48px 20px 96px; }
+  main { max-width:720px; margin:0 auto; }
+  h1 { color:#e8e8e8; font-size:26px; margin:0 0 6px; }
+  h2 { color:#d97757; font-size:15px; margin:36px 0 10px; letter-spacing:.4px; }
+  .sub { color:#7a7a7a; margin:0 0 8px; }
+  a { color:#6a99ff; }
+  ul { padding-left:20px; }
+  li { margin:6px 0; }
+  strong { color:#e8e8e8; }
+  .note { border-left:3px solid #2a2a2a; padding:2px 0 2px 14px; color:#7a7a7a; margin:18px 0; }
+  footer { margin-top:56px; color:#5a5a5a; font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="sub">clim · last updated 8 August 2026</p>
+
+  <p>clim connects your phone to a Claude Code or Codex session running on your own
+  computer. It has no accounts, no sign-up, and no server that holds your data.</p>
+
+  <h2>WHAT WE COLLECT</h2>
+  <p><strong>Nothing.</strong> clim collects no personal information, sends no analytics,
+  and contains no telemetry, advertising, tracking or crash-reporting SDKs. There is no
+  backend that stores anything about you, because there are no user accounts at all.</p>
+
+  <h2>WHERE YOUR SESSION DATA GOES</h2>
+  <ul>
+    <li><strong>On the same WiFi (LAN mode):</strong> your phone talks directly to your
+      computer over your local network. Nothing leaves your router, and no third party is
+      involved.</li>
+    <li><strong>Away from home (Cloud mode):</strong> traffic passes through a relay so the
+      two devices can find each other. Everything is encrypted on your computer before it
+      is sent and decrypted only on your phone, using a key generated on your computer and
+      shared with your phone by scanning a QR code. That key is never transmitted to the
+      relay.</li>
+  </ul>
+  <div class="note">The relay stores nothing. It holds no database and writes nothing to
+  disk — it forwards encrypted messages between your two devices and forgets them. It
+  cannot read your conversations, because it does not have the key.</div>
+
+  <h2>WHAT IS STORED ON YOUR PHONE</h2>
+  <p>Only what is needed to reconnect to your own computer, held in the app's private
+  storage on the device:</p>
+  <ul>
+    <li>the address of your computer and its pairing secret</li>
+    <li>the encryption key and room identifier used for Cloud mode</li>
+    <li>which connection you last used, and which sessions you have muted</li>
+  </ul>
+  <p>Deleting the app removes all of it. Your conversations are not saved by the app — they
+  are read live from your computer and are gone when the app closes.</p>
+
+  <h2>WHAT IS STORED ON YOUR COMPUTER</h2>
+  <p>The <code>clim</code> command keeps a pairing key in your home folder and a temporary
+  pairing PIN while pairing is open. Your Claude Code conversation history is written and
+  owned by Claude Code itself, in its own folder — clim only reads it in order to show it
+  on your phone, and never uploads it anywhere except, encrypted, to your own phone.</p>
+
+  <h2>NOTIFICATIONS</h2>
+  <p>Notifications are generated locally on your phone from data already on it. No push
+  service receives the content of your sessions.</p>
+
+  <h2>CHILDREN</h2>
+  <p>clim is a developer tool and is not directed at children under 13.</p>
+
+  <h2>CHANGES</h2>
+  <p>If this policy changes, the date at the top changes with it. Because clim collects
+  nothing, we do not expect it to change often.</p>
+
+  <h2>CONTACT</h2>
+  <p>Questions or concerns:
+    <a href="https://github.com/dingalabs/clim/issues">github.com/dingalabs/clim/issues</a></p>
+
+  <footer><a href="/">← clim.dev</a> · <a href="/terms.html">Terms of Use</a></footer>
+</main>
+</body>
+</html>

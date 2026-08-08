@@ -1,0 +1,27 @@
+<svg viewBox="0 0 128 128" width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- clim mark: a terminal window drawn in orange line, nothing filled. Source
+       of truth for every raster icon — edit this and run scripts/make-icons.py;
+       never hand-edit the PNGs.
+       The window used to be a solid orange slab with the prompt knocked out in
+       black, which left the only shape in the mark reading as a hole. Now the
+       frame is a stroke and the prompt is drawn in the same orange, so the mark
+       is one colour on one background. -->
+  <rect width="128" height="128" fill="#111111"/>
+
+  <!-- window controls, sitting above the frame -->
+  <circle cx="23.5" cy="21.5" r="4.2" fill="#DB7F5C"/>
+  <circle cx="38.5" cy="21.5" r="4.2" fill="#DB7F5C"/>
+  <circle cx="53.5" cy="21.5" r="4.2" fill="#DB7F5C"/>
+
+  <!-- the window: one stroke, one radius on all four corners. Inset by half the
+       stroke width so the outer edge lands on 8.5/119.5 and the corners are not
+       clipped by the icon bounds. -->
+  <rect x="12" y="37" width="104" height="78" rx="12" ry="12"
+        fill="none" stroke="#DB7F5C" stroke-width="7"/>
+
+  <!-- the prompt, same orange, same round joins as the frame -->
+  <g fill="none" stroke="#DB7F5C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M35 60l16 16-16 16"/>
+    <path d="M58 92h35"/>
+  </g>
+</svg>

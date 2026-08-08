@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>clim — web tester</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0a0a0a; color:#e8e8e8; font-family: ui-monospace, SF Mono, Menlo, monospace; margin:0; padding:22px; }
+  h1 { color:#d97757; font-size:18px; margin:0 0 14px; letter-spacing:1px; }
+  .row { display:flex; gap:8px; align-items:center; margin:8px 0; }
+  input, button { background:#151515; color:#e8e8e8; border:1px solid #26262c; padding:8px 12px; border-radius:6px; font-family:inherit; font-size:13px; }
+  input { flex:1; }
+  button { cursor:pointer; background:#d97757; color:#1a0800; border-color:#d97757; font-weight:700; }
+  button:disabled { opacity:0.4; cursor:not-allowed; }
+  .status { padding:6px 10px; border-radius:999px; font-size:11px; border:1px solid; display:inline-block; }
+  .ok { color:#7ec99f; border-color:#7ec99f; background:rgba(126,201,159,0.1); }
+  .bad { color:#e56b6b; border-color:#e56b6b; background:rgba(229,107,107,0.1); }
+  .warn { color:#e8b45a; border-color:#e8b45a; background:rgba(232,180,90,0.1); }
+  pre { background:#151515; border:1px solid #26262c; border-radius:6px; padding:12px; height:340px; overflow:auto; font-size:12px; margin:12px 0; }
+  .lbl { color:#7a7a7a; font-size:11px; text-transform:uppercase; letter-spacing:1px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  section { background:#0d0d0d; border:1px solid #26262c; border-radius:10px; padding:14px; }
+  h2 { color:#e8e8e8; font-size:13px; margin:0 0 10px; letter-spacing:0.5px; }
+</style>
+</head>
+<body>
+<h1>clim — end-to-end web tester</h1>
+<div class="row">
+  <span class="lbl">status:</span>
+  <span id="pairSt" class="status warn">unpaired</span>
+  <span id="wsSt" class="status warn">ws idle</span>
+</div>
+
+<div class="grid">
+  <section>
+    <h2>1. Pair with PIN</h2>
+    <div class="row">
+      <input id="pin" placeholder="8-char PIN" maxlength="8" autocomplete="off">
+      <button id="pairBtn">Pair</button>
+    </div>
+    <div class="row">
+      <span class="lbl">secret:</span>
+      <span id="secOut" style="font-size:11px; color:#7a7a7a;">—</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. WebSocket</h2>
+    <div class="row">
+      <button id="wsBtn" disabled>Connect WS</button>
+      <button id="wsClose" disabled>Close</button>
+    </div>
+    <div class="row">
+      <input id="sid" placeholder="sessionId (auto-fills on first msg)">
+      <input id="msg" placeholder="text to send">
+      <button id="sendBtn" disabled>Send</button>
+    </div>
+  </section>
+</div>
+
+<div class="lbl" style="margin-top:14px;">events:</div>
+<pre id="log"></pre>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const log = (m) => { const t = new Date().toLocaleTimeString(); $('log').textContent += `[${t}] ${m}\n`; $('log').scrollTop = $('log').scrollHeight; };
+let secret = ''; let ws = null;
+
+$('pairBtn').onclick = async () => {
+  const pin = $('pin').value.trim();
+  if (!pin) return;
+  try {
+    const r = await fetch('/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.secret) {
+      secret = j.secret;
+      $('secOut').textContent = secret.slice(0, 8) + '…' + secret.slice(-4);
+      $('pairSt').textContent = 'paired'; $('pairSt').className = 'status ok';
+      $('wsBtn').disabled = false;
+      log(`pair OK — secret len ${secret.length}`);
+    } else {
+      $('pairSt').textContent = 'pair failed (' + r.status + ')'; $('pairSt').className = 'status bad';
+      log(`pair FAIL ${r.status}: ${JSON.stringify(j)}`);
+    }
+  } catch (e) { log(`pair error: ${e.message}`); }
+};
+
+$('wsBtn').onclick = () => {
+  try { ws && ws.close(); } catch {}
+  const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '?secret=' + encodeURIComponent(secret);
+  ws = new WebSocket(wsUrl);
+  $('wsSt').textContent = 'connecting'; $('wsSt').className = 'status warn';
+  ws.onopen = () => { $('wsSt').textContent = 'connected'; $('wsSt').className = 'status ok'; $('sendBtn').disabled = false; $('wsClose').disabled = false; log('ws open'); };
+  ws.onclose = () => { $('wsSt').textContent = 'closed'; $('wsSt').className = 'status bad'; $('sendBtn').disabled = true; log('ws close'); };
+  ws.onerror = (e) => log('ws error');
+  ws.onmessage = (ev) => {
+    try {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === 'init') {
+        log(`init: ${msg.sessions.length} sessions`);
+        if (msg.sessions[0]) { $('sid').value = msg.sessions[0].sessionId; log('sid auto: ' + msg.sessions[0].sessionId); }
+        msg.sessions.forEach((s) => log(`  · ${s.sessionId.slice(0,10)}… ${s.project} — ${(s.lines||[]).slice(-1)[0]||''}`));
+      } else if (msg.type === 'update') {
+        const s = msg.session;
+        log(`update ${s.sessionId.slice(0,10)}: ${(s.lines||[]).slice(-1)[0]||''}`);
+      } else if (msg.type === 'ptyChunk') {
+        log(`pty[${msg.sessionId.slice(0,8)}] ${msg.text.replace(/\r?\n/g,'⏎').slice(0,100)}`);
+      } else {
+        log('msg: ' + JSON.stringify(msg).slice(0, 200));
+      }
+    } catch { log('raw: ' + String(ev.data).slice(0, 200)); }
+  };
+};
+
+$('wsClose').onclick = () => { try { ws && ws.close(); } catch {} };
+
+$('sendBtn').onclick = async () => {
+  const sid = $('sid').value.trim(); const text = $('msg').value;
+  if (!sid || !text) return;
+  try {
+    const r = await fetch('/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Secret': secret }, body: JSON.stringify({ sessionId: sid, text, cwd: '' }) });
+    log(`send POST → ${r.status}`);
+    $('msg').value = '';
+  } catch (e) { log(`send error: ${e.message}`); }
+};
+</script>
+</body>
+</html>
