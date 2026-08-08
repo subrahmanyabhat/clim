@@ -938,7 +938,7 @@ function Settings({ onBack, onHelp, host, cloudSid, activeMode }: any) {
 
         <View style={s.groupHead}><Text style={s.groupLabel}>ABOUT</Text></View>
         <View style={s.setCard}>
-          <SettingsRow testID="settings-help" icon="help" label="How Clim works"
+          <SettingsRow testID="settings-help" icon="help" label="How clim works"
             hint="the quick tour" onPress={onHelp} />
           <SettingsRow testID="settings-source" icon="terminal" label="Source code"
             hint="github.com/subrahmanyabhat/clim" onPress={() => open(LINKS.source)} />
@@ -957,11 +957,11 @@ function Settings({ onBack, onHelp, host, cloudSid, activeMode }: any) {
         <View style={s.groupHead}><Text style={s.groupLabel}>SUPPORT THE PROJECT</Text></View>
         <View style={s.setCard}>
           <SettingsRow testID="settings-coffee" icon="zap" label="Buy me a coffee"
-            hint="Clim is free — this keeps the relay running" tint={C.brand}
+            hint="clim is free — this keeps the relay running" tint={C.brand}
             onPress={() => open(LINKS.coffee)} />
         </View>
 
-        <Text style={s.setVersion}>Clim {APP_VERSION} · MIT licence</Text>
+        <Text style={s.setVersion}>clim {APP_VERSION} · MIT licence</Text>
       </ScrollView>
     </View>
   );
@@ -1752,10 +1752,10 @@ function Setup({ host, secret, discovered, cloudUrl, cloudKey, cloudSid, activeM
 function Tutorial({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [idx, setIdx] = useState(0);
   const slides = [
-    { icon: 'terminal', title: 'What is Clim?', body: 'Control Claude Code, Codex and Hermes from your phone — any agent you can run in a terminal. See sessions live, tap Yes/No, send messages, from anywhere.' },
+    { icon: 'terminal', title: 'What is clim?', body: 'Control Claude Code, Codex and Hermes from your phone — any agent you can run in a terminal. See sessions live, tap Yes/No, send messages, from anywhere.' },
     { icon: 'wifi', title: 'LAN mode', body: 'On the same WiFi as your Mac, phone talks to it directly. Fast, private, no internet needed. Zero packets leave your router.' },
     { icon: 'cloud', title: 'Cloud mode', body: 'When you are elsewhere, packets go through a zero-knowledge relay. End-to-end encrypted with a key only your phone and Mac share.' },
-    { icon: 'zap', title: 'Setup on Mac', body: 'Install once:\nnpm install -g @dingalabs/clim\n\nThen run:\nclim claude\n\nA QR pops up. Scan it with Clim. Done. LAN or Cloud is auto-detected.' },
+    { icon: 'zap', title: 'Setup on Mac', body: 'Install once:\nnpm install -g @dingalabs/clim\n\nThen run:\nclim claude\n\nA QR pops up. Scan it with clim. Done. LAN or Cloud is auto-detected.' },
     { icon: 'shield', title: 'Live control', body: 'Yes/No prompts become tap buttons. Numbered options 1/2/3 become tap rows. Type any message — it lands in your Mac terminal like you typed it.' },
   ];
   if (!visible) return null;
