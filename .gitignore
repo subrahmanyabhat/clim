@@ -13,3 +13,8 @@ worker/.wrangler/
 
 # macOS
 .DS_Store
+
+# Store asset editor (Next.js) — build output and exports are regenerable
+store/node_modules/
+store/.next/
+store/export/

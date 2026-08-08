@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 2,
+  "appName": "clim",
+  "themeId": "clim",
+  "connectedCanvas": false,
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "device": "feature-graphic",
+  "orientation": "portrait",
+  "appIcon": "/app-icon.png",
+  "slidesByDevice": {
+    "iphone": [
+      {
+        "id": "clim_iphone_1",
+        "layout": "hero",
+        "label": {
+          "en": "PAIR ONCE"
+        },
+        "headline": {
+          "en": "Your terminal,\nin your pocket."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/01.png"
+      },
+      {
+        "id": "clim_iphone_2",
+        "layout": "device-top",
+        "label": {
+          "en": "NO ACCOUNT"
+        },
+        "headline": {
+          "en": "Scan a QR.\nThat's the whole setup."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/02.png"
+      },
+      {
+        "id": "clim_iphone_3",
+        "layout": "device-bottom",
+        "label": {
+          "en": "EVERY SESSION"
+        },
+        "headline": {
+          "en": "See what's waiting\non you."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/03.png",
+        "inverted": true
+      },
+      {
+        "id": "clim_iphone_4",
+        "layout": "device-top",
+        "label": {
+          "en": "TAP TO ANSWER"
+        },
+        "headline": {
+          "en": "Answer Claude\nwith one tap."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/04.png"
+      },
+      {
+        "id": "clim_iphone_5",
+        "layout": "device-bottom",
+        "label": {
+          "en": "ANY AGENT"
+        },
+        "headline": {
+          "en": "Codex and Hermes,\nsame app."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/05.png"
+      }
+    ],
+    "android": [
+      {
+        "id": "clim_android_1",
+        "layout": "hero",
+        "label": {
+          "en": "PAIR ONCE"
+        },
+        "headline": {
+          "en": "Your terminal,\nin your pocket."
+        },
+        "screenshot": "/screenshots/android/phone/{locale}/01.png"
+      },
+      {
+        "id": "clim_android_2",
+        "layout": "device-top",
+        "label": {
+          "en": "ON YOUR WIFI"
+        },
+        "headline": {
+          "en": "Your Mac, found\nin a second."
+        },
+        "screenshot": "/screenshots/android/phone/{locale}/02.png"
+      },
+      {
+        "id": "clim_android_3",
+        "layout": "device-bottom",
+        "label": {
+          "en": "EVERY SESSION"
+        },
+        "headline": {
+          "en": "See what's waiting\non you."
+        },
+        "screenshot": "/screenshots/android/phone/{locale}/03.png",
+        "inverted": true
+      },
+      {
+        "id": "clim_android_4",
+        "layout": "device-top",
+        "label": {
+          "en": "ANY AGENT"
+        },
+        "headline": {
+          "en": "Codex reads\nlike a chat."
+        },
+        "screenshot": "/screenshots/android/phone/{locale}/04.png"
+      },
+      {
+        "id": "clim_android_5",
+        "layout": "device-bottom",
+        "label": {
+          "en": "PRIVATE"
+        },
+        "headline": {
+          "en": "No accounts.\nNothing collected."
+        },
+        "screenshot": "/screenshots/android/phone/{locale}/05.png"
+      }
+    ],
+    "ipad": [],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": [
+      {
+        "id": "clim_fg_1",
+        "layout": "feature-graphic",
+        "label": {
+          "en": "CLIM"
+        },
+        "headline": {
+          "en": "Your terminal, in your pocket."
+        },
+        "screenshot": ""
+      }
+    ]
+  },
+  "crossScreenMockupsByDevice": {
+    "iphone": [],
+    "ipad": [],
+    "android": [],
+    "android-7": [],
+    "android-10": [],
+    "feature-graphic": []
+  }
+}
