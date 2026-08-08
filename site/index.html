@@ -497,7 +497,7 @@ h1.headline .underlined::after {
   width: 62px; height: 5px; border-radius: 3px; background: #000; z-index: 2;
 }
 .shot img { display: block; width: 100%; height: auto; border-radius: 20px; background: var(--bg); }
-.shot figcaption { margin-top: 14px; }
+.shot .cap { margin-top: 14px; }
 .shot .cap-title { color: var(--text); font-size: 13px; font-weight: 700; }
 .shot .cap-body { color: var(--muted); font-size: 12px; line-height: 1.55; margin-top: 4px; }
 @media (max-width: 720px) { .shot { width: 210px; } }
@@ -510,8 +510,10 @@ h1.headline .underlined::after {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
   will-change: transform;
 }
-.shots .shot:nth-child(1) figure { --tilt: 7deg; }
-.shots .shot:nth-child(3) figure { --tilt: -7deg; }
+.shots .shot:nth-child(1) figure { --tilt: 8deg; }
+.shots .shot:nth-child(2) figure { --tilt: 4deg; }
+.shots .shot:nth-child(4) figure { --tilt: -4deg; }
+.shots .shot:nth-child(5) figure { --tilt: -8deg; }
 .shot figure:hover {
   --tilt: 0deg;
   transform: perspective(1200px) rotateY(0) translateY(-6px);
@@ -544,8 +546,10 @@ h1.headline .underlined::after {
   background: linear-gradient(180deg, transparent, rgba(219, 127, 92, 0.10), transparent);
   animation: sweep 7s ease-in-out infinite;
 }
-.shots .shot:nth-child(2) .glass::after { animation-delay: 2.3s; }
-.shots .shot:nth-child(3) .glass::after { animation-delay: 4.6s; }
+.shots .shot:nth-child(2) .glass::after { animation-delay: 1.4s; }
+.shots .shot:nth-child(3) .glass::after { animation-delay: 2.8s; }
+.shots .shot:nth-child(4) .glass::after { animation-delay: 4.2s; }
+.shots .shot:nth-child(5) .glass::after { animation-delay: 5.6s; }
 @keyframes sweep {
   0%, 70%, 100% { top: -40%; opacity: 0; }
   8% { opacity: 1; }
@@ -957,48 +961,75 @@ footer .wrap {
     <div class="reveal">
       <div class="section-mark">04 — the app</div>
       <h2>What it <span class="serif">actually</span> looks like.</h2>
-      <p class="section-lead">Real screenshots from a live session. No mockups.</p>
+      <p class="section-lead">Real screenshots, straight off the build. Swipe &rarr;</p>
     </div>
 
     <div class="shots reveal">
       <div class="shot reveal" style="transition-delay: 0s;">
         <figure>
           <span class="glass"></span>
-          <img src="./shots/pair.png" width="1206" height="2622" loading="lazy" decoding="async"
-               alt="clim pairing screen with a Scan QR button, a LAN/Cloud toggle, and a field to paste the invite line" />
-          <figcaption>
-            <div class="cap-step"><b>01</b> / 03</div>
-            <div class="cap-title">Pair once</div>
-            <div class="cap-body">Scan the QR your Mac prints — or paste the invite line if the camera isn't an option.</div>
-          </figcaption>
+          <img src="./shots/pair-v2.png" width="1206" height="2622" loading="lazy" decoding="async"
+               alt="clim pairing screen showing the orange prompt mark, a Scan new QR button and a LAN/Cloud toggle" />
         </figure>
+        <div class="cap">
+          <div class="cap-step"><b>01</b> / 05</div>
+          <div class="cap-title">Pair once</div>
+          <div class="cap-body">Scan the QR your Mac prints — or paste the invite line if the camera isn&rsquo;t an option.</div>
+        </div>
       </div>
 
-      <div class="shot reveal" style="transition-delay: 0.12s;">
+      <div class="shot reveal" style="transition-delay: 0.08s;">
         <figure>
           <span class="glass"></span>
-          <img src="./shots/sessions.png" width="1206" height="2622" loading="lazy" decoding="async"
-               alt="clim session list showing one live Claude Code session marked needs input" />
-          <figcaption>
-            <div class="cap-step"><b>02</b> / 03</div>
-            <div class="cap-title">Every session, at a glance</div>
-            <div class="cap-body">Live cards per session. The one waiting on you is outlined and marked <em>needs input</em>.</div>
-          </figcaption>
+          <img src="./shots/devices-v2.png" width="1206" height="2622" loading="lazy" decoding="async"
+               alt="clim devices screen listing one MacBook Pro on the LAN holding three sessions" />
         </figure>
+        <div class="cap">
+          <div class="cap-step"><b>02</b> / 05</div>
+          <div class="cap-title">Your Macs, listed</div>
+          <div class="cap-body">Every Mac running clim on the network, with how many sessions each one is holding.</div>
+        </div>
+      </div>
+
+      <div class="shot reveal" style="transition-delay: 0.16s;">
+        <figure>
+          <span class="glass"></span>
+          <img src="./shots/sessions-v2.png" width="1206" height="2622" loading="lazy" decoding="async"
+               alt="clim session list with three live sessions, one Claude session marked needs input and one Codex session" />
+        </figure>
+        <div class="cap">
+          <div class="cap-step"><b>03</b> / 05</div>
+          <div class="cap-title">Every session, at a glance</div>
+          <div class="cap-body">Claude and Codex side by side. The one waiting on you is outlined and marked <em>needs input</em>.</div>
+        </div>
       </div>
 
       <div class="shot reveal" style="transition-delay: 0.24s;">
         <figure>
           <span class="glass"></span>
-          <img src="./shots/conversation.png" width="1206" height="2622" loading="lazy" decoding="async"
-               alt="clim conversation view showing the real Claude Code exchange with three tappable numbered options" />
-          <figcaption>
-            <div class="cap-step"><b>03</b> / 03</div>
-            <div class="cap-title">Real replies, tappable answers</div>
-            <div class="cap-body">The conversation as it was actually said — no tool calls, no terminal chrome. Numbered options become tap rows.</div>
-          </figcaption>
+          <img src="./shots/claude-v2.png" width="1206" height="2622" loading="lazy" decoding="async"
+               alt="clim conversation view showing a Claude exchange with three tappable numbered option rows" />
         </figure>
+        <div class="cap">
+          <div class="cap-step"><b>04</b> / 05</div>
+          <div class="cap-title">Tap the answer</div>
+          <div class="cap-body">The conversation as it was actually said. Numbered options become rows you can tap.</div>
+        </div>
       </div>
+
+      <div class="shot reveal" style="transition-delay: 0.32s;">
+        <figure>
+          <span class="glass"></span>
+          <img src="./shots/codex-v2.png" width="1206" height="2622" loading="lazy" decoding="async"
+               alt="clim showing a Codex session rendered as a conversation rather than raw terminal output" />
+        </figure>
+        <div class="cap">
+          <div class="cap-step"><b>05</b> / 05</div>
+          <div class="cap-title">Codex reads the same</div>
+          <div class="cap-body">Codex and Hermes have no transcript, so clim reads their turns off the screen — no terminal chrome.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

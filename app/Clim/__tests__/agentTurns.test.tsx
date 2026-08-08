@@ -76,3 +76,21 @@ describe('parseAgentTurns', () => {
     expect(parseAgentTurns(idle, 'codex')).toBeNull();
   });
 });
+
+describe('parseAgentTurns wrapping', () => {
+  it('drops the indent a wrapped turn shares, keeping relative indent', () => {
+    const screen = [
+      '› ship it',
+      '',
+      '• Done. The exporter now writes',
+      '    one object per record, and',
+      '    the table stays the default.',
+      '',
+      '› Implement {feature}',
+      '  gpt-5.6-terra default · /tmp',
+    ].join('\n');
+    const turns = parseAgentTurns(screen, 'codex')!;
+    expect(turns[1].text).toBe(
+      'Done. The exporter now writes\none object per record, and\nthe table stays the default.');
+  });
+});

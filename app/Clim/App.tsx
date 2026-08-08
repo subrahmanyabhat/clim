@@ -1890,6 +1890,16 @@ export function parseAgentTurns(text: string, tool?: string): Msg[] | null {
     if (out.length) push(out[out.length - 1].role, raw);
   }
 
+  // A wrapped line keeps the indent the TUI used to align it under the marker,
+  // which on a narrow phone reads as ragged prose. Remove the indent the whole
+  // turn shares — relative indentation inside it, like a code block, survives.
+  for (const m of out) {
+    const [head, ...rest] = m.text.split('\n');
+    if (!rest.length) continue;
+    const pad = Math.min(...rest.filter((l) => l.trim()).map((l) => l.match(/^ */)![0].length));
+    m.text = [head, ...rest.map((l) => l.slice(pad))].join('\n');
+  }
+
   // The composer sits at the bottom and looks exactly like a user turn — codex
   // even pre-fills it with "Implement {feature}". If the last thing on screen is
   // a user turn with no reply under it, that is the input box, not a turn.
