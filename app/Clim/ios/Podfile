@@ -36,5 +36,21 @@ target 'Clim' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Xcode 26 no longer ships the Swift 5.6 back-compat libraries, and any
+    # target built for a deployment target below iOS 15.4 still auto-links
+    # them -- which failed the archive with
+    #   Undefined symbols: __swift_FORCE_LOAD_$_swiftCompatibility56
+    #     referenced from libReactNativeCameraKit.a(CameraManager.o)
+    # Pods inherit their own deployment targets from their podspecs, so the
+    # app target being raised is not enough; they have to be raised too.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f
+        if current < 16.0
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+        end
+      end
+    end
   end
 end
