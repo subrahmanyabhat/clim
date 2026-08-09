@@ -1,16 +1,16 @@
 /**
- * App Store Connect driver.
+ * App Store Connect / Developer Portal driver.
  *
- * Opens a real, visible browser against App Store Connect using a persistent
- * profile, so you sign in once (with your own password and 2FA — this script
- * never sees either) and every later run reuses the session.
+ * Uses a persistent Chromium profile so you sign in once, with your own
+ * password and 2FA. This script never reads either — it only waits until an
+ * authenticated page renders.
  *
- *   node asc.mjs login     open the browser and wait for you to sign in
- *   node asc.mjs status    report what exists: the app record, its state
- *   node asc.mjs fill      write the listing copy into the version form
- *   node asc.mjs shots     upload the six 6.9" screenshots
+ *   node asc.mjs probe      where are we: signed in? app id? app record?
+ *   node asc.mjs appid      register the bundle id com.dingalabs.clim
+ *   node asc.mjs create     create the app record in App Store Connect
+ *   node asc.mjs fill       write the listing copy into the version form
  *
- * Nothing here submits the app for review. The last click stays yours.
+ * Nothing here submits for review. That click stays yours.
  */
 import { chromium } from "playwright";
 import fs from "node:fs";
@@ -19,10 +19,14 @@ import os from "node:os";
 
 const PROFILE = path.join(os.homedir(), ".clim-asc-profile");
 const ASC = "https://appstoreconnect.apple.com";
+const DEV = "https://developer.apple.com/account/resources/identifiers/list";
 const BUNDLE_ID = "com.dingalabs.clim";
-const SHOTS = path.join(os.homedir(), "Desktop/clim-store-screenshots/app-store");
+const APP_NAME = "clim: terminal remote";
+const SKU = "clim-ios-001";
+const SHOT_DIR = path.join(os.homedir(), "Desktop/clim-asc-shots");
 
-const cmd = process.argv[2] || "login";
+fs.mkdirSync(SHOT_DIR, { recursive: true });
+const cmd = process.argv[2] || "probe";
 
 const ctx = await chromium.launchPersistentContext(PROFILE, {
   headless: false,
@@ -31,62 +35,96 @@ const ctx = await chromium.launchPersistentContext(PROFILE, {
 });
 const page = ctx.pages()[0] || (await ctx.newPage());
 
-async function signedIn() {
-  // The apps dashboard only renders for an authenticated session; the sign-in
-  // page keeps an Apple ID field on screen.
-  await page.goto(`${ASC}/apps`, { waitUntil: "domcontentloaded" }).catch(() => {});
-  await page.waitForTimeout(3000);
+const shot = async (name) => {
+  const f = path.join(SHOT_DIR, `${name}.png`);
+  await page.screenshot({ path: f, fullPage: false }).catch(() => {});
+  return f;
+};
+
+async function go(url) {
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60_000 }).catch(() => {});
+  await page.waitForTimeout(4000);
+}
+
+function isSignIn(url, text) {
+  return /idmsa\.apple\.com|\/login|signin/i.test(url) ||
+         /sign in with your apple|apple account/i.test(text.slice(0, 400));
+}
+
+async function readPage() {
   const url = page.url();
-  if (/idmsa\.apple\.com|signin/i.test(url)) return false;
-  return /appstoreconnect\.apple\.com/.test(url);
+  const text = await page.evaluate(() => document.body.innerText).catch(() => "");
+  return { url, text };
 }
 
-async function waitForLogin(maxMs = 15 * 60 * 1000) {
-  const started = Date.now();
-  process.stdout.write("waiting for sign-in");
-  while (Date.now() - started < maxMs) {
-    if (await signedIn()) { console.log("\nsigned in"); return true; }
-    process.stdout.write(".");
-    await page.waitForTimeout(10_000);
+// ---------------------------------------------------------------- probe
+if (cmd === "probe") {
+  await go(`${ASC}/apps`);
+  let { url, text } = await readPage();
+  const authed = !isSignIn(url, text);
+  console.log(`app store connect: ${authed ? "SIGNED IN" : "NOT SIGNED IN"}  (${url})`);
+  console.log(await shot("01-asc"));
+
+  if (authed) {
+    const hasClim = /\bclim\b/i.test(text);
+    console.log(`app record for clim: ${hasClim ? "EXISTS" : "not found"}`);
+    console.log("--- dashboard text ---");
+    console.log(text.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 25).join("\n"));
   }
-  console.log("\ntimed out waiting for sign-in");
-  return false;
-}
 
-if (cmd === "login") {
-  await page.goto(ASC, { waitUntil: "domcontentloaded" });
-  console.log("Browser is open. Sign in with your Apple ID and complete 2FA.");
-  console.log("This script does not read the password or the code.");
-  await waitForLogin();
-  console.log(`session stored in ${PROFILE} — later runs reuse it`);
-}
-
-if (cmd === "status") {
-  if (!(await signedIn())) {
-    console.log("not signed in — run: node asc.mjs login");
-  } else {
-    await page.waitForTimeout(2000);
-    const bodyText = await page.evaluate(() => document.body.innerText);
-    const hasClim = /\bclim\b/i.test(bodyText);
-    console.log("app record for clim visible on dashboard:", hasClim ? "yes" : "no");
-    console.log("--- apps listed ---");
-    console.log(bodyText.split("\n").filter(Boolean).slice(0, 40).join("\n"));
+  await go(DEV);
+  ({ url, text } = await readPage());
+  const devAuthed = !isSignIn(url, text);
+  console.log(`\ndeveloper portal: ${devAuthed ? "SIGNED IN" : "NOT SIGNED IN"}  (${url})`);
+  console.log(await shot("02-devportal"));
+  if (devAuthed) {
+    const hasId = text.includes(BUNDLE_ID);
+    console.log(`app id ${BUNDLE_ID}: ${hasId ? "REGISTERED" : "not registered"}`);
   }
 }
 
-if (cmd === "shots") {
-  const files = fs.existsSync(SHOTS)
-    ? fs.readdirSync(SHOTS).filter((f) => f.endsWith(".png")).sort()
-    : [];
-  console.log(`${files.length} screenshots ready at ${SHOTS}`);
-  files.forEach((f) => console.log("  " + f));
-  console.log("\nOpen the version page, scroll to App Previews and Screenshots,");
-  console.log("then drop these on the 6.9\" well. Automating that drag is brittle;");
-  console.log("the file picker is the reliable path.");
+// ---------------------------------------------------------------- app id
+if (cmd === "appid") {
+  await go("https://developer.apple.com/account/resources/identifiers/add/bundleId");
+  const { url, text } = await readPage();
+  if (isSignIn(url, text)) { console.log("not signed in — run: node asc.mjs probe, sign in, retry"); }
+  else {
+    console.log("on:", url);
+    console.log(await shot("03-appid-form"));
+    console.log("--- visible controls ---");
+    const inputs = await page.evaluate(() =>
+      [...document.querySelectorAll("input,button,select")]
+        .filter((e) => e.offsetParent)
+        .slice(0, 30)
+        .map((e) => `${e.tagName.toLowerCase()}[${e.type || ""}] name=${e.name || ""} id=${e.id || ""} text=${(e.innerText || e.value || "").slice(0, 40)}`)
+    );
+    console.log(inputs.join("\n"));
+  }
 }
 
-if (cmd !== "login") {
-  console.log("\nleaving the browser open — close it yourself when done");
-} else {
-  console.log("\nbrowser stays open for the next command");
+// ---------------------------------------------------------------- create
+if (cmd === "create") {
+  await go(`${ASC}/apps`);
+  const { url, text } = await readPage();
+  if (isSignIn(url, text)) { console.log("not signed in"); }
+  else {
+    // The "+" that opens the New App dialog
+    const plus = page.locator('button:has-text("+"), [aria-label*="Add" i]').first();
+    if (await plus.count()) {
+      await plus.click().catch(() => {});
+      await page.waitForTimeout(3000);
+    }
+    console.log(await shot("04-newapp-dialog"));
+    const controls = await page.evaluate(() =>
+      [...document.querySelectorAll("input,select,button")]
+        .filter((e) => e.offsetParent)
+        .slice(0, 40)
+        .map((e) => `${e.tagName.toLowerCase()}[${e.type || ""}] ph=${e.placeholder || ""} text=${(e.innerText || "").slice(0, 40)}`)
+    );
+    console.log(controls.join("\n"));
+    console.log(`\nintended values → name: ${APP_NAME} | bundle: ${BUNDLE_ID} | sku: ${SKU}`);
+  }
 }
+
+console.log(`\nscreenshots of what the browser saw: ${SHOT_DIR}`);
+console.log("browser left open");
