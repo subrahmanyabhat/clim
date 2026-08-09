@@ -131,32 +131,78 @@ paired Mac first.
 
 ---
 
-## 5. Upload
+## 5. Upload — where this actually stands
+
+**The archive is built and verified.** `app/Clim/ios/build/Clim.xcarchive`,
+confirmed by reading the Info.plist out of the built binary rather than the
+source:
+
+```
+version 1.1.0   build 1
+UIDeviceFamily [1]                     iPhone only
+NSLocationWhenInUseUsageDescription    absent
+NSCameraUsageDescription               the rewritten string
+NSBonjourServices                      ["_clim._tcp"]
+NSAppTransportSecurity                 arbitrary loads false, local networking true
+```
+
+**The store export is blocked, and only you can unblock it.** Running the
+export produces:
+
+```
+error: exportArchive No Accounts
+error: exportArchive No profiles for 'com.dingalabs.clim' were found
+```
+
+What exists on this Mac:
+
+| Asset | State |
+|---|---|
+| Apple Distribution certificate | present — `Subrahmanya Bhat (PT83LJRA65)` |
+| Apple Development certificate | present |
+| Provisioning profiles | 2, both for `com.subrahmanya123.arrowaway` — none for clim |
+| Xcode account session | none — xcodebuild cannot create a profile headlessly |
+
+So the membership and the certificate are fine. What is missing is an App
+Store provisioning profile for `com.dingalabs.clim`, and nothing can mint one
+without an authenticated session. Two ways:
+
+**A. Xcode, once (simplest).** Open `ios/Clim.xcworkspace`, sign in under
+Settings → Accounts, select the Clim target → Signing & Capabilities, tick
+Automatically manage signing with team `PT83LJRA65`. Xcode registers the App ID
+and creates the profile. Then Product → Archive → Distribute App, or re-run the
+command line export below.
+
+**B. App Store Connect API key (headless, repeatable).** Create a key in App
+Store Connect → Users and Access → Integrations, download the `.p8`, then:
 
 ```bash
 cd /Users/user/clim/app/Clim/ios
-
-xcodebuild -workspace Clim.xcworkspace -scheme Clim -configuration Release \
-  -destination generic/platform=iOS archive -archivePath build/Clim.xcarchive \
-  CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=PT83LJRA65 -allowProvisioningUpdates
-
-# Export for the store (method: app-store-connect, not development)
 xcodebuild -exportArchive -archivePath build/Clim.xcarchive \
-  -exportOptionsPlist ExportOptions-appstore.plist -exportPath build/AppStore
+  -exportOptionsPlist ExportOptions-appstore.plist -exportPath build/AppStore \
+  -allowProvisioningUpdates \
+  -authenticationKeyPath /absolute/path/AuthKey_XXXXXXXX.p8 \
+  -authenticationKeyID XXXXXXXX \
+  -authenticationKeyIssuerID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 xcrun altool --upload-app -f build/AppStore/Clim.ipa -t ios \
-  --apiKey <KEY_ID> --apiIssuer <ISSUER_ID>
+  --apiKey XXXXXXXX --apiIssuer xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-The IPA on your Desktop is **development**-signed for sideloading. The store
-needs an `app-store-connect` export; `ExportOptions-appstore.plist` is written
-alongside this file.
+Give me that key and I can finish the export and upload without you touching
+Xcode.
 
-Build number must increase on every upload. It is currently `1`
-(`CURRENT_PROJECT_VERSION`) — bump it before each new build or App Store
-Connect rejects the duplicate.
+**Also required before the first upload:** the app record has to exist in App
+Store Connect (My Apps → +, bundle id `com.dingalabs.clim`, SKU of your
+choosing). The bundle id must be registered as an App ID in the developer
+portal too — route A does that for you; route B does it via
+`-allowProvisioningUpdates`.
 
----
+The IPA currently on your Desktop is **development**-signed for sideloading.
+It cannot be uploaded to the store.
+
+Build number is `1`. It must increase on every upload, so bump
+`CURRENT_PROJECT_VERSION` before the second one.
 
 ## 6. Pre-flight checklist
 

@@ -1624,7 +1624,7 @@ PODS:
     - RNNotifee/NotifeeCore (= 9.1.8)
   - RNNotifee/NotifeeCore (9.1.8):
     - React-Core
-  - RNSVG (15.7.1):
+  - RNSVG (15.8.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1644,9 +1644,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNSVG/common (= 15.7.1)
+    - RNSVG/common (= 15.8.0)
     - Yoga
-  - RNSVG/common (15.7.1):
+  - RNSVG/common (15.8.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1956,7 +1956,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 32b81683fe511833e266d428be942fafc43bea1c
   RNCAsyncStorage: 2edc69cf6db9299363a11477668b7f452f2cb4a6
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
-  RNSVG: 6a869d38016bf4fbdb6880652a33d33580db57f7
+  RNSVG: 030717ff82ea8f2117347c2fcf52a2d1eafba9ba
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: fcc198acd4a55599b3468cfb6ebc526baff5f06e
 
