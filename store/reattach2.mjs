@@ -1,0 +1,20 @@
+import { chromium } from "playwright";
+const b = await chromium.connectOverCDP("http://localhost:9222");
+const p = b.contexts()[0].pages().at(-1);
+p.on('dialog', d => d.accept().catch(()=>{}));
+await p.locator('input[type=radio][value="f89a9ff0-1a1b-43f3-93d3-e083c4e6d492"]').check();
+await p.waitForTimeout(2000);
+console.log("build selected");
+await p.getByText('Done', { exact: true }).last().click({ timeout: 20000 });
+await p.waitForTimeout(9000);
+const st = await p.evaluate(() => {
+  const t = document.body.innerText.replace(/\s+/g,' ');
+  const i = t.search(/BUILD VERSION STATUS/);
+  return { row: i>=0 ? t.slice(i, i+110) : 'not attached' };
+});
+console.log(JSON.stringify(st));
+await p.evaluate(() => { const s=[...document.querySelectorAll('button')].find(e=>/^save$/i.test(e.innerText.trim())&&!e.disabled); s&&s.click(); });
+await p.waitForTimeout(11000);
+console.log("errors after save:", await p.evaluate(() => /one or more errors/i.test(document.body.innerText)));
+await p.screenshot({ path: process.env.HOME + '/Desktop/clim-asc-shots/attached-final.png' });
+await b.close();

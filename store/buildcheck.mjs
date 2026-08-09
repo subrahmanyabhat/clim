@@ -1,0 +1,12 @@
+import { chromium } from "playwright";
+const b = await chromium.connectOverCDP("http://localhost:9222");
+const p = b.contexts()[0].pages().at(-1);
+p.on('dialog', d => d.accept().catch(()=>{}));
+await p.goto("https://appstoreconnect.apple.com/apps/6799607439/testflight/ios", { waitUntil: "domcontentloaded" });
+await p.waitForTimeout(12000);
+const t = await p.evaluate(() => document.body.innerText.replace(/\s+/g,' '));
+const i = t.search(/build|version|processing/i);
+console.log("state:", t.slice(i, i + 380));
+const hasIcon = await p.evaluate(() => !!document.querySelector('header img, [class*="AppIcon"] img'));
+console.log("icon rendered in header:", hasIcon);
+await b.close();

@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "appName": "clim",
   "themeId": "clim",
-  "connectedCanvas": false,
+  "connectedCanvas": true,
   "locales": [
     "en"
   ],
@@ -24,43 +24,33 @@
         "screenshot": "/screenshots/apple/iphone/{locale}/01.png",
         "transforms": {
           "device": {
-            "x": 161.8208020554842,
-            "y": 724.0490602409641,
-            "width": 1013.6355043227666,
-            "height": 2064.96,
-            "rotation": 0,
-            "zIndex": 3
-          }
-        }
-      },
-      {
-        "id": "clim_iphone_2",
-        "layout": "device-top",
-        "label": {
-          "en": "NO ACCOUNT"
-        },
-        "headline": {
-          "en": "Scan a QR.\nThat's the whole setup."
-        },
-        "screenshot": "/screenshots/apple/iphone/{locale}/02.png",
-        "transforms": {
-          "device": {
-            "x": 170.45935627235167,
-            "y": 88.97710843373495,
+            "x": 176.07173373250254,
+            "y": 670.6080664521442,
             "width": 1013.6355043227666,
             "height": 2064.96,
             "rotation": 0,
             "zIndex": 3
           },
           "caption": {
-            "x": 87.64222639560258,
-            "y": 2242.381695048244,
-            "width": 1114,
-            "height": 496,
+            "x": 105.60000338459946,
+            "y": 226.1200136394421,
+            "width": 1109,
+            "height": 835,
             "rotation": 0,
             "zIndex": 4
           }
         }
+      },
+      {
+        "id": "clim_iphone_2",
+        "layout": "device-bottom",
+        "label": {
+          "en": "NO ACCOUNT"
+        },
+        "headline": {
+          "en": "Scan a QR.\nThat's the whole setup."
+        },
+        "screenshot": "/screenshots/apple/iphone/{locale}/02.png"
       },
       {
         "id": "clim_iphone_3",

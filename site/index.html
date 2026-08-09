@@ -706,6 +706,42 @@ h1.headline .serif {
 }
 
 /* ---- FOOTER ---- */
+/* ---- FEEDBACK: help us improve ---- */
+.feedback-section { padding: 72px 0; border-top: 1px solid var(--border); background: var(--bg-2); }
+.feedback-form { max-width: 620px; display: flex; flex-direction: column; gap: 14px; margin-top: 26px; }
+.feedback-form .hp { position: absolute; left: -9999px; opacity: 0; pointer-events: none; height: 0; width: 0; }
+.feedback-form textarea,
+.feedback-form input[type=email] {
+  width: 100%; padding: 12px 14px; border-radius: var(--radius);
+  border: 1px solid var(--border-2); background: var(--panel); color: var(--text);
+  font-family: var(--mono); font-size: 13px; resize: vertical;
+}
+.feedback-form textarea::placeholder,
+.feedback-form input[type=email]::placeholder { color: var(--dim); }
+.feedback-form textarea:focus,
+.feedback-form input[type=email]:focus {
+  outline: none; border-color: var(--claude); box-shadow: 0 0 0 3px rgba(217,119,87,0.14);
+}
+.fb-rating { display: flex; gap: 8px; flex-wrap: wrap; }
+.fb-rating button {
+  border: 1px solid var(--border-2); border-radius: 999px; padding: 7px 14px;
+  background: var(--panel); color: var(--text-2); font-family: var(--mono); font-size: 12px;
+  cursor: pointer; transition: all 0.15s;
+}
+.fb-rating button:hover { border-color: var(--claude); color: var(--text); }
+.fb-rating button.active { background: var(--claude); color: #1a0800; border-color: var(--claude); }
+.fb-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.fb-status { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.fb-status.ok { color: var(--green); }
+.fb-status.err { color: var(--danger); }
+.fb-mail { color: var(--muted); font-size: 12px; margin-top: 18px; }
+.fb-mail a { color: var(--claude); }
+
+.footer-love .heart { color: var(--claude); display: inline-block; animation: heartbeat 1.6s ease-in-out infinite; }
+@keyframes heartbeat { 0%,100% { transform: scale(1); } 14% { transform: scale(1.22); } 28% { transform: scale(1); } 42% { transform: scale(1.22); } 56% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .footer-love .heart { animation: none; } }
+
+
 footer {
   padding: 42px 0 60px;
   border-top: 1px solid var(--border);
@@ -1208,6 +1244,35 @@ footer .wrap {
 
 </main>
 
+<!-- ============= HELP US IMPROVE ============= -->
+<section class="feedback-section" id="feedback">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-mark">07 &mdash; help us improve</div>
+      <h2>Something <span class="serif">broken</span>, or missing?</h2>
+      <p class="section-lead">Tell us what went wrong, what you expected, or what clim should do next. Every message lands in our inbox.</p>
+    </div>
+
+    <form class="feedback-form reveal" data-feedback>
+      <!-- Bots fill hidden fields; humans never see this one. -->
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="fb-rating" role="radiogroup" aria-label="How is clim working for you?">
+        <button type="button" data-r="&#128078;">&#128078; broken</button>
+        <button type="button" data-r="&#129300;">&#129300; confusing</button>
+        <button type="button" data-r="&#128077;">&#128077; works</button>
+        <button type="button" data-r="&#128293;">&#128293; love it</button>
+      </div>
+      <textarea name="message" placeholder="What happened? Which agent, LAN or cloud, and what did you expect instead?&#10;Type here&hellip;" required maxlength="5000" rows="4"></textarea>
+      <input type="email" name="email" placeholder="Your email (optional &mdash; only so we can reply)" maxlength="200">
+      <div class="fb-actions">
+        <button type="submit" class="btn primary">Send feedback</button>
+        <span class="fb-status" aria-live="polite"></span>
+      </div>
+    </form>
+    <p class="fb-mail">Prefer email? <a href="mailto:dingalabs@gmail.com">dingalabs@gmail.com</a></p>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <div class="foot-brand">
@@ -1236,14 +1301,14 @@ footer .wrap {
         <h5>legal</h5>
         <a href="/privacy.html">privacy · zero data collected</a> · <a href="/terms.html">terms</a> · <a href="https://buymeacoffee.com/subrahmanya">buy me a coffee</a>
         <a href="https://github.com/subrahmanyabhat/clim/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a>
-        <a href="mailto:subrahmanya126@gmail.com">contact</a>
+        <a href="mailto:dingalabs@gmail.com">dingalabs@gmail.com</a>
       </div>
     </div>
   </div>
   <div class="wrap">
     <div class="foot-bottom">
       <span>© 2026 clim · MIT · not affiliated with Anthropic, OpenAI or Nous Research</span>
-      <span>made with <span style="color:var(--claude);">✻</span> by @subrahmanya126</span>
+      <span class="footer-love">Made with <span class="heart" aria-label="love">&hearts;</span> by <a href="https://dingalabs.in" target="_blank" rel="noopener">Dingalabs</a></span>
     </div>
   </div>
 </footer>
@@ -1319,6 +1384,68 @@ document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
 // Immediately reveal hero elements (above the fold)
 document.querySelectorAll('.hero .reveal').forEach((el) => el.classList.add('in'));
+
+// ---- feedback form ----
+// Posts to the Netlify function, which relays through Resend. The honeypot
+// field is checked server-side too; this only avoids a pointless round trip.
+(function () {
+  document.querySelectorAll("form[data-feedback]").forEach(function (form) {
+    var rating = "";
+    var ratingButtons = form.querySelectorAll(".fb-rating button");
+    ratingButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        rating = btn.getAttribute("data-r");
+        ratingButtons.forEach(function (b) { b.classList.toggle("active", b === btn); });
+      });
+    });
+
+    var status = form.querySelector(".fb-status");
+    var submitBtn = form.querySelector("button[type=submit]");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var fd = new FormData(form);
+      var payload = {
+        message: (fd.get("message") || "").toString().trim(),
+        email: (fd.get("email") || "").toString().trim(),
+        rating: rating,
+        page: (document.title || "") + " \u2014 " + location.pathname,
+        website: (fd.get("website") || "").toString(),
+      };
+      if (!payload.message) {
+        status.textContent = "Message required.";
+        status.className = "fb-status err";
+        return;
+      }
+      submitBtn.disabled = true;
+      status.textContent = "Sending\u2026";
+      status.className = "fb-status";
+      try {
+        var res = await fetch("/.netlify/functions/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (res.ok && data.ok) {
+          status.textContent = "Thanks \u2014 sent.";
+          status.className = "fb-status ok";
+          form.reset();
+          rating = "";
+          ratingButtons.forEach(function (b) { b.classList.remove("active"); });
+        } else {
+          status.textContent = "Failed: " + (data.error || res.status);
+          status.className = "fb-status err";
+        }
+      } catch (err) {
+        status.textContent = "Network error \u2014 or email us instead.";
+        status.className = "fb-status err";
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  });
+})();
 </script>
 </body>
 </html>

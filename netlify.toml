@@ -2,6 +2,11 @@
   publish = "site"
   command = ""
 
+# The feedback form posts here; the function relays it through Resend.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Static marketing page — no build step, no framework.
 
 [[headers]]
