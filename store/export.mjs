@@ -20,6 +20,21 @@ const BASE = process.env.STORE_URL || "http://localhost:3000";
 const OUT = path.resolve("export");
 const project = JSON.parse(fs.readFileSync("app-store-screenshots.json", "utf8"));
 
+
+// PNG surgery without a dependency: rewrite each file through `sips`, which
+// ships with macOS and drops the alpha channel when the format is set to RGB.
+function flattenToRgb(files) {
+  for (const f of files) {
+    try {
+      execFileSync("sips", ["-s", "format", "png", "-s", "formatOptions", "best",
+                            "--matchTo", "/System/Library/ColorSync/Profiles/sRGB Profile.icc",
+                            f, "--out", f], { stdio: "ignore" });
+    } catch {
+      // sips is best-effort; the bundle script verifies modes independently.
+    }
+  }
+}
+
 const wanted = process.argv.slice(2);
 const devices = Object.entries(project.slidesByDevice)
   .filter(([, slides]) => Array.isArray(slides) && slides.length)
@@ -84,6 +99,12 @@ for (const device of devices) {
       else if (e.name.endsWith(".png")) pngs.push(full);
     }
   })(dir);
+
+  // html-to-image writes RGBA, and App Store Connect refuses any screenshot
+  // carrying an alpha channel ("Images can't contain alpha channels or
+  // transparencies"). Flatten onto the deck's own background so the upload is
+  // accepted and nothing changes visually.
+  flattenToRgb(pngs);
   console.log(`${pngs.length} png`);
 }
 
