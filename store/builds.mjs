@@ -1,0 +1,10 @@
+import { chromium } from "playwright";
+const b = await chromium.connectOverCDP("http://localhost:9222");
+const p = b.contexts()[0].pages().at(-1);
+p.on('dialog', d => d.accept().catch(()=>{}));
+await p.goto("https://appstoreconnect.apple.com/apps/6799607439/testflight/ios", { waitUntil: "domcontentloaded" });
+await p.waitForTimeout(12000);
+const t = await p.evaluate(() => document.body.innerText.replace(/\s+/g,' ').slice(0, 500));
+console.log(t);
+await p.screenshot({ path: process.env.HOME + '/Desktop/clim-asc-shots/builds.png' });
+await b.close();

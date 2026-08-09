@@ -131,78 +131,47 @@ paired Mac first.
 
 ---
 
-## 5. Upload — where this actually stands
+## 5. Upload — done, from CI
 
-**The archive is built and verified.** `app/Clim/ios/build/Clim.xcarchive`,
-confirmed by reading the Info.plist out of the built binary rather than the
-source:
+The build is uploaded. Delivery UUID `f89a9ff0-1a1b-43f3-93d3-e083c4e6d492`.
 
-```
-version 1.1.0   build 1
-UIDeviceFamily [1]                     iPhone only
-NSLocationWhenInUseUsageDescription    absent
-NSCameraUsageDescription               the rewritten string
-NSBonjourServices                      ["_clim._tcp"]
-NSAppTransportSecurity                 arbitrary loads false, local networking true
-```
-
-**The store export is blocked, and only you can unblock it.** Running the
-export produces:
+It could not be uploaded from this Mac. App Store Connect rejects anything
+built with an SDK older than iOS 26, and the local Xcode is 16.4 (iOS 18.5):
 
 ```
-error: exportArchive No Accounts
-error: exportArchive No profiles for 'com.dingalabs.clim' were found
+Validation failed (409) SDK version issue. This app was built with the iOS 18.5
+SDK. All iOS and iPadOS apps must be built with the iOS 26 SDK or later.
 ```
 
-What exists on this Mac:
-
-| Asset | State |
-|---|---|
-| Apple Distribution certificate | present — `Subrahmanya Bhat (PT83LJRA65)` |
-| Apple Development certificate | present |
-| Provisioning profiles | 2, both for `com.subrahmanya123.arrowaway` — none for clim |
-| Xcode account session | none — xcodebuild cannot create a profile headlessly |
-
-So the membership and the certificate are fine. What is missing is an App
-Store provisioning profile for `com.dingalabs.clim`, and nothing can mint one
-without an authenticated session. Two ways:
-
-**A. Xcode, once (simplest).** Open `ios/Clim.xcworkspace`, sign in under
-Settings → Accounts, select the Clim target → Signing & Capabilities, tick
-Automatically manage signing with team `PT83LJRA65`. Xcode registers the App ID
-and creates the profile. Then Product → Archive → Distribute App, or re-run the
-command line export below.
-
-**B. App Store Connect API key (headless, repeatable).** Create a key in App
-Store Connect → Users and Access → Integrations, download the `.p8`, then:
+So `.github/workflows/upload.yml` builds it on a `macos-15` runner that has
+Xcode 26, using `upload-build.sh`. Re-run it with:
 
 ```bash
-cd /Users/user/clim/app/Clim/ios
-xcodebuild -exportArchive -archivePath build/Clim.xcarchive \
-  -exportOptionsPlist ExportOptions-appstore.plist -exportPath build/AppStore \
-  -allowProvisioningUpdates \
-  -authenticationKeyPath /absolute/path/AuthKey_XXXXXXXX.p8 \
-  -authenticationKeyID XXXXXXXX \
-  -authenticationKeyIssuerID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-
-xcrun altool --upload-app -f build/AppStore/Clim.ipa -t ios \
-  --apiKey XXXXXXXX --apiIssuer xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+gh workflow run upload.yml
+gh run watch
 ```
 
-Give me that key and I can finish the export and upload without you touching
-Xcode.
+Secrets it needs, already set: `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8`
+(the .p8 base64-encoded). The key must be **Admin**, not App Manager — cloud
+signing creates a distribution certificate on the runner and App Manager is
+refused with "Cloud signing permission error".
 
-**Also required before the first upload:** the app record has to exist in App
-Store Connect (My Apps → +, bundle id `com.dingalabs.clim`, SKU of your
-choosing). The bundle id must be registered as an App ID in the developer
-portal too — route A does that for you; route B does it via
-`-allowProvisioningUpdates`.
+Two project changes were needed to build against the iOS 26 SDK at all:
 
-The IPA currently on your Desktop is **development**-signed for sideloading.
-It cannot be uploaded to the store.
+- **Deployment target raised 15.1 → 16.0.** Xcode 26 dropped the Swift 5.6
+  back-compatibility libraries, and any target below iOS 15.4 still auto-links
+  them, so the archive failed on
+  `__swift_FORCE_LOAD_$_swiftCompatibility56` referenced from
+  `libReactNativeCameraKit.a`. Raising the target removes the auto-link at its
+  source; the alternative was jumping react-native-camera-kit across four major
+  versions. `post_install` raises the pods' targets too, since they carry their
+  own from their podspecs.
+- **Build logs are no longer filtered through grep.** The first failure showed
+  only "clang++: error: linker command failed" because undefined-symbol lines
+  print as `ld: ...` and matched neither pattern being grepped for.
 
-Build number is `1`. It must increase on every upload, so bump
-`CURRENT_PROJECT_VERSION` before the second one.
+Build number is `1`. Bump `CURRENT_PROJECT_VERSION` before the next upload —
+App Store Connect rejects a duplicate.
 
 ## 6. Pre-flight checklist
 
