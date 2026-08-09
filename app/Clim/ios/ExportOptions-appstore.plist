@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Store export. The other options plist in this repo is `development`, which
-  produces an IPA for sideloading onto a registered device — App Store Connect
-  rejects that one. Use this for uploads.
+  Store export, signed manually.
+
+  Automatic signing cannot work here: xcodebuild has no App Store Connect
+  session, so it cannot mint a profile ("No Accounts"). The profile named below
+  was generated in the developer portal and installed locally, so the export
+  only has to use it, not create it.
 -->
 <plist version="1.0">
 <dict>
@@ -14,7 +17,14 @@
   <key>destination</key>
   <string>export</string>
   <key>signingStyle</key>
-  <string>automatic</string>
+  <string>manual</string>
+  <key>signingCertificate</key>
+  <string>Apple Distribution</string>
+  <key>provisioningProfiles</key>
+  <dict>
+    <key>com.dingalabs.clim</key>
+    <string>clim App Store</string>
+  </dict>
   <key>uploadSymbols</key>
   <true/>
   <key>manageAppVersionAndBuildNumber</key>

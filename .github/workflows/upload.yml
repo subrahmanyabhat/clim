@@ -1,0 +1,53 @@
+# Builds and uploads to App Store Connect from a runner with Xcode 26.
+#
+# The local Mac runs Xcode 16.4 (iOS SDK 18.5) and App Store Connect rejects
+# those uploads with a 409: everything must be built against the iOS 26 SDK.
+#
+# Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the .p8, base64-encoded)
+name: Upload to App Store Connect
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        id: xcode
+        run: |
+          # Runner images name these Xcode_26.3.app etc. — there is no bare
+          # Xcode_26.app, so pick the highest 26.x present rather than pinning.
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XC" ]; then echo "no Xcode 26 on this runner"; ls -d /Applications/Xcode*.app; exit 1; fi
+          echo "Selected $XC"
+          sudo xcode-select -s "$XC"
+          echo "path=$XC" >> "$GITHUB_OUTPUT"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Install JS dependencies
+        run: cd app/Clim && npm ci
+
+      - name: Install Pods
+        run: cd app/Clim/ios && pod install
+
+      - name: Restore API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$ASC_KEY_P8" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8
+
+      - name: Archive, export, upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: XCODE26='${{ steps.xcode.outputs.path }}' ./upload-build.sh

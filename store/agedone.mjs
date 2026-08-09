@@ -1,0 +1,11 @@
+import { chromium } from "playwright";
+const b = await chromium.connectOverCDP("http://localhost:9222");
+const p = b.contexts()[0].pages().at(-1);
+p.on('dialog', d => d.accept().catch(()=>{}));
+const btns = await p.evaluate(() => [...document.querySelectorAll('button')].filter(e=>e.offsetParent).map(e=>e.innerText.trim()).filter(Boolean).slice(0,14));
+console.log("buttons:", JSON.stringify(btns));
+const t = await p.evaluate(() => document.body.innerText.replace(/\s+/g,' '));
+const i = t.search(/age rating(s)? (is|will|for)|assigned|4\+|9\+|13\+|16\+|18\+/i);
+console.log("rating context:", i>=0 ? t.slice(i-80, i+260) : "not shown yet");
+await p.screenshot({ path: process.env.HOME + '/Desktop/clim-asc-shots/age-result.png' });
+await b.close();
