@@ -38,17 +38,30 @@ AUTH=(-allowProvisioningUpdates
       -authenticationKeyID "$KEY_ID"
       -authenticationKeyIssuerID "$ISSUER")
 
-echo "==> Archiving"
-xcodebuild archive -workspace "$IOS/Clim.xcworkspace" -scheme Clim \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -archivePath "$OUT/Clim.xcarchive" "${AUTH[@]}" \
-  | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)"
+# Filtering xcodebuild through grep hides the reason it failed: a linker error
+# prints "ld: Undefined symbols", which matches neither "error:" nor
+# "ARCHIVE FAILED". Keep the whole log and dump its tail when something breaks.
+run_xcodebuild() {
+  local label="$1"; shift
+  local log="$OUT/$label.log"
+  echo "==> $label"
+  if ! "$@" > "$log" 2>&1; then
+    echo "--- $label failed; last 80 lines ---" >&2
+    tail -80 "$log" >&2
+    exit 1
+  fi
+  grep -E "error:|warning: .*deprecated|(ARCHIVE|EXPORT) (SUCCEEDED|FAILED)" "$log" | tail -20 || true
+}
 
-echo "==> Exporting"
-xcodebuild -exportArchive -archivePath "$OUT/Clim.xcarchive" \
+run_xcodebuild Archiving xcodebuild archive \
+  -workspace "$IOS/Clim.xcworkspace" -scheme Clim \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -archivePath "$OUT/Clim.xcarchive" "${AUTH[@]}"
+
+run_xcodebuild Exporting xcodebuild -exportArchive \
+  -archivePath "$OUT/Clim.xcarchive" \
   -exportOptionsPlist "$IOS/ExportOptions-ci.plist" -exportPath "$OUT/ipa" \
-  "${AUTH[@]}" \
-  | grep -E "error:|EXPORT (SUCCEEDED|FAILED)"
+  "${AUTH[@]}"
 
 # altool exits 0 even when it prints "VERIFY FAILED" or "UPLOAD FAILED", so its
 # output has to be inspected rather than its status.
